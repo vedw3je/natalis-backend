@@ -1,5 +1,7 @@
 package dev.ved.natalis.doctor_service.repository;
 import dev.ved.natalis.doctor_service.entity.Doctor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -7,16 +9,30 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface DoctorRepository extends MongoRepository<Doctor,String> {
+public interface DoctorRepository extends MongoRepository<Doctor, String> {
 
-    public Optional<Doctor> findByPhoneNumber(String phoneNumber);
+    Optional<Doctor> findByUserId(String userId);
 
-    public Optional<Doctor> findByEmail(String email);
+    boolean existsByUserId(String userId);
 
-    public List<Doctor> findByName(String name);
-    public List<Doctor> findByNameRegexIgnoreCase(String regex);
-    public List<Doctor> findByCity(String city);
+    Optional<Doctor> findByIdAndOrganizationId(String id, String organizationId);
 
+    List<Doctor> findByOrganizationIdAndIsActiveTrue(String organizationId);
 
+    Page<Doctor> findByOrganizationIdAndIsActiveTrue(
+            String organizationId,
+            Pageable pageable
+    );
+
+    List<Doctor> findByOrganizationIdAndNameRegexIgnoreCaseAndIsActiveTrue(
+            String organizationId,
+            String name
+    );
+
+    List<Doctor> findByOrganizationIdAndSpecializationAndIsActiveTrue(
+            String organizationId,
+            String specialization
+    );
+
+    long countByOrganizationIdAndIsActiveTrue(String organizationId);
 }
-

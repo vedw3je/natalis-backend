@@ -4,38 +4,40 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "doctors")
+@CompoundIndex(def = "{'organizationId': 1, 'userId': 1}", unique = true)
 public class Doctor {
 
     @Id
     private String id;
 
     @Indexed(unique = true)
-    private String doctorId;
-
-    @Indexed(unique = true)
-    private String email;
-
-    @Indexed(unique = true)
-    private String phoneNumber;
+    private String userId;   // Reference to User (Auth)
 
     private String name;
+
     private String specialization;
+
     private String qualification;
-    private int experienceYears;
 
-    private String hospitalName;
-    private String hospitalAddress;
+    private Integer experienceYears;
 
+    @Indexed
+    private String organizationId;
 
-    private String city;
+    private String organizationName;
 
-    private boolean available; // Is doctor currently available for appointments?
+    private Boolean isActive = true;
+
+    private Instant createdAt;
 }
 

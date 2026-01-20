@@ -1,82 +1,123 @@
 package dev.ved.natalis.doctor_service.service;
 import dev.ved.natalis.doctor_service.entity.Doctor;
 import dev.ved.natalis.doctor_service.repository.DoctorRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 @Service
+@RequiredArgsConstructor
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
 
-    @Autowired
-    public DoctorService(DoctorRepository doctorRepository) {
-        this.doctorRepository = doctorRepository;
-    }
+    public Doctor createDoctor(
+            String userId,
+            String organizationId,
+            String organizationName,
+            Doctor doctorRequest
+    ) {
+        if (doctorRepository.existsByUserId(userId)) {
+            throw new IllegalStateException("Doctor profile already exists for this user");
+        }
 
-    // Create a new doctor
-    public Doctor saveDoctor(Doctor doctor) {
+        Doctor doctor = new Doctor();
+        doctor.setUserId(userId);
+        doctor.setName(doctorRequest.getName());
+        doctor.setSpecialization(doctorRequest.getSpecialization());
+        doctor.setQualification(doctorRequest.getQualification());
+        doctor.setExperienceYears(doctorRequest.getExperienceYears());
+        doctor.setOrganizationId(organizationId);
+        doctor.setOrganizationName(organizationName);
+        doctor.setIsActive(true);
+        doctor.setCreatedAt(Instant.now());
+
         return doctorRepository.save(doctor);
     }
 
-    // Get all doctors
-    public List<Doctor> getAllDoctors() {
-        return doctorRepository.findAll();
+
+    public List<Doctor> getActiveDoctorsByOrganization(String organizationId) {
+        return doctorRepository.findByOrganizationIdAndIsActiveTrue(organizationId);
     }
 
-    // Get doctor by ID
-    public Optional<Doctor> getDoctorById(String id) {
-        return doctorRepository.findById(id);
-    }
-
-    public Doctor updateDoctor(String id, Doctor updatedDoctor) {
-        Optional<Doctor> optionalDoctor = doctorRepository.findById(id);
-
-        if (optionalDoctor.isPresent()) {
-            Doctor doctor = optionalDoctor.get();
-            doctor.setName(updatedDoctor.getName());
-            doctor.setEmail(updatedDoctor.getEmail());
-            doctor.setPhoneNumber(updatedDoctor.getPhoneNumber());
-            doctor.setSpecialization(updatedDoctor.getSpecialization());
-            doctor.setQualification(updatedDoctor.getQualification());
-            doctor.setExperienceYears(updatedDoctor.getExperienceYears());
-            doctor.setHospitalName(updatedDoctor.getHospitalName());
-            doctor.setHospitalAddress(updatedDoctor.getHospitalAddress());
-            doctor.setAvailable(updatedDoctor.isAvailable());
-            return doctorRepository.save(doctor);
-        }
-
-        return null; // Will be handled in GlobalExceptionHandler
+    public Page<Doctor> getActiveDoctorsByOrganization(
+            String organizationId,
+            Pageable pageable
+    ) {
+        return doctorRepository.findByOrganizationIdAndIsActiveTrue(
+                organizationId, pageable
+        );
     }
 
 
-    // Delete doctor
-    public void deleteDoctor(String id) {
-        doctorRepository.deleteById(id);
+    public Doctor getDoctorById(
+            String doctorId,
+            String organizationId
+    ) {
+        return doctorRepository
+                .findByIdAndOrganizationId(doctorId, organizationId)
+                .orElseThrow(() -> new NoSuchElementException("Doctor not found"));
     }
 
-    // Find by phone number
-    public Optional<Doctor> getDoctorByPhoneNumber(String phoneNumber) {
-        return doctorRepository.findByPhoneNumber(phoneNumber);
-    }
-
-    // Find by email
-    public Optional<Doctor> getDoctorByEmail(String email) {
-        return doctorRepository.findByEmail(email);
-    }
-
-    public List<Doctor> getDoctorsByName(String name) {
-        String regex = ".*" + name + ".*"; // matches anywhere in the name
-        return doctorRepository.findByNameRegexIgnoreCase(regex);
-    }
-
-    public List<Doctor> getDoctorsByCity(String city){
-        return doctorRepository.findByCity(city);
+    public Doctor getDoctorByUserId(String userId) {
+        return doctorRepository
+                .findByUserId(userId)
+                .orElseThrow(() -> new NoSuchElementException("Doctor profile not found"));
     }
 
 
+    public Doctor updateDoctor(
+            String doctorId,
+            String organizationId,
+            Doctor updatedDoctor
+    ) {
+        Doctor existingDoctor = getDoctorById(doctorId, organizationId);
+
+        existingDoctor.setName(updatedDoctor.getName());
+        existingDoctor.setSpecialization(updatedDoctor.getSpecialization());
+        existingDoctor.setQualification(updatedDoctor.getQualification());
+        existingDoctor.setExperienceYears(updatedDoctor.getExperienceYears());
+
+        return doctorRepository.save(existingDoctor);
+    }
+
+
+    public List<Doctor> searchDoctorsByName(
+            String organizationId,
+            String name
+    ) {
+        String regex = ".*" + Pattern.quote(name) + ".*";
+        return doctorRepository
+                .findByOrganizationIdAndNameRegexIgnoreCaseAndIsActiveTrue(
+                        organizationId, regex
+                );
+    }
+
+    public List<Doctor> getDoctorsBySpecialization(
+            String organizationId,
+            String specialization
+    ) {
+        return doctorRepository
+                .findByOrganizationIdAndSpecializationAndIsActiveTrue(
+                        organizationId, specialization
+                );
+    }
+
+    public void deactivateDoctor(
+            String doctorId,
+            String organizationId
+    ) {
+        Doctor doctor = getDoctorById(doctorId, organizationId);
+        doctor.setIsActive(false);
+        doctorRepository.save(doctor);
+    }
 }
