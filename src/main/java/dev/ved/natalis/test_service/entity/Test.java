@@ -17,6 +17,7 @@ import java.util.Map;
 @Document(collection = "tests")
 @CompoundIndex(def = "{'organizationId': 1, 'motherId': 1}")
 @CompoundIndex(def = "{'organizationId': 1, 'doctorId': 1}")
+//@CompoundIndex(def = "{'organizationId': 1, 'visitId': 1, 'testTime': -1}")
 public class Test {
 
     @Id
@@ -34,6 +35,10 @@ public class Test {
 
     @Indexed
     private String doctorId;
+
+//    @Indexed
+//    private String visitId;
+
 
     /* =========================
        TEST METADATA
