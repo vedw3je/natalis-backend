@@ -45,6 +45,10 @@ public interface TestRepository extends MongoRepository<Test, String> {
             String classification
     );
 
+    Optional<Test> findTopByOrganizationIdAndMotherIdAndIsActiveTrueOrderByTestTimeDesc(
+            String organizationId,
+            String motherId
+    );
 
 //    List<Test> findByOrganizationIdAndVisitIdAndIsActiveTrueOrderByTestTimeDesc(
 //            String organizationId,

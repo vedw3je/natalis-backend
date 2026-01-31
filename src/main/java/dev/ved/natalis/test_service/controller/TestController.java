@@ -58,23 +58,26 @@ public class TestController {
         return ResponseEntity.ok(mapToResponse(test));
     }
 
-    /* =========================
-       GET TESTS BY MOTHER
-       ========================= */
+
+
+/* =========================
+   GET LATEST TEST BY MOTHER
+   ========================= */
 
     @GetMapping("/by-mother")
-    public ResponseEntity<List<TestResponse>> getTestsByMother(
+    public ResponseEntity<TestResponse> getLatestTestByMother(
             @RequestParam String organizationId,
             @RequestParam String motherId
     ) {
-        List<TestResponse> tests = testService
-                .getTestsByMother(organizationId, motherId)
-                .stream()
-                .map(this::mapToResponse)
-                .toList();
+        Test test = testService.getLatestTestByMother(
+                organizationId,
+                motherId
+        );
 
-        return ResponseEntity.ok(tests);
+        return ResponseEntity.ok(mapToResponse(test));
     }
+
+
 
     /* =========================
        GET TESTS BY DOCTOR

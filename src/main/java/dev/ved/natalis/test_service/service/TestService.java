@@ -89,6 +89,24 @@ public class TestService {
     }
 
     /* =========================
+   GET LATEST TEST BY MOTHER
+   ========================= */
+
+    public Test getLatestTestByMother(
+            String organizationId,
+            String motherId
+    ) {
+        return testRepository
+                .findTopByOrganizationIdAndMotherIdAndIsActiveTrueOrderByTestTimeDesc(
+                        organizationId, motherId
+                )
+                .orElseThrow(() ->
+                        new NoSuchElementException("No test found for mother")
+                );
+    }
+
+
+    /* =========================
        DOCTOR DASHBOARD
        ========================= */
 
