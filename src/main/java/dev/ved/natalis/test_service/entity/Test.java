@@ -34,6 +34,9 @@ public class Test {
     private String motherId;
 
     @Indexed
+    private String motherName;
+
+    @Indexed
     private String doctorId;
 
 //    @Indexed

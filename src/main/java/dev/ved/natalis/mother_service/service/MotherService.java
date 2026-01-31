@@ -61,7 +61,6 @@ public class MotherService {
 
         mother.setIsActive(true);
         mother.setCreatedAt(Instant.now());
-
         return motherRepository.save(mother);
     }
 

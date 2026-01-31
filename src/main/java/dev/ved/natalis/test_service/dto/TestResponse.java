@@ -15,6 +15,7 @@ public class TestResponse {
     private String id;
 
     private String motherId;
+    private String motherName;
     private String doctorId;
     private String organizationId;
 

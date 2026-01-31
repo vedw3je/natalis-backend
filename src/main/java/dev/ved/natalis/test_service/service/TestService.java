@@ -23,6 +23,7 @@ public class TestService {
 
     public Test createTest(
             String organizationId,
+            String motherName,
             String motherId,
             String doctorId,
             TestRequest request
@@ -32,6 +33,7 @@ public class TestService {
 
         /* --- Relationships --- */
         test.setOrganizationId(organizationId);
+        test.setMotherName(motherName);
         test.setMotherId(motherId);
         test.setDoctorId(doctorId);
 

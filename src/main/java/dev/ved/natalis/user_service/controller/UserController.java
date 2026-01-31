@@ -22,8 +22,6 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
-//    private final JwtService jwtService;
-
 
     @PostMapping("/register")
     public ResponseEntity<UserResponse> register(
